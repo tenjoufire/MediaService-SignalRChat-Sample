@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "mediaservices_katsujim_name": {
+            "value": null
+        },
+        "sites_katsujim_mediaservice_sample_name": {
+            "value": null
+        },
+        "sites_katsujim_SignalR_functionApp_name": {
+            "value": null
+        },
+        "SignalR_katsujim_signalr_name": {
+            "value": null
+        },
+        "storageAccounts_katsujimmediaservices_name": {
+            "value": null
+        },
+        "serverfarms_ASP_katsujim_mediaservice_externalid": {
+            "value": null
+        },
+        "serverfarms_JapanEastPlan_externalid": {
+            "value": null
+        }
+    }
+}
