@@ -2,41 +2,55 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "mediaservices_katsujim_name": {
-            "defaultValue": "sample-mediaservices",
+        "mediaservices_sample_name": {
+            "defaultValue": "sample",
             "type": "String"
         },
-        "sites_katsujim_mediaservice_sample_name": {
+        "serverfarms_JapanEastPlan_name": {
+            "defaultValue": "JapanEastPlan",
+            "type": "String"
+        },
+        "sites_sample_mediaservice_sample_name": {
             "defaultValue": "sample-mediaservice-sample",
             "type": "String"
         },
-        "sites_katsujim_SignalR_functionApp_name": {
+        "sites_sample_SignalR_functionApp_name": {
             "defaultValue": "sample-SignalR-functionApp",
             "type": "String"
         },
-        "SignalR_katsujim_signalr_name": {
+        "SignalR_sample_signalr_name": {
             "defaultValue": "sample-signalr",
             "type": "String"
         },
-        "storageAccounts_katsujimmediaservices_name": {
-            "defaultValue": "samplemediaservices",
+        "serverfarms_ASP_sample_mediaservice_name": {
+            "defaultValue": "ASP-sample-mediaservice",
             "type": "String"
         },
-        "serverfarms_ASP_katsujim_mediaservice_externalid": {
-            "defaultValue": "/subscriptions/2bd296ba-87e3-462d-8480-2d25f87fdc97/resourceGroups/katsujim_mediaservices/providers/Microsoft.Web/serverfarms/ASP-katsujim-mediaservice",
-            "type": "String"
-        },
-        "serverfarms_JapanEastPlan_externalid": {
-            "defaultValue": "/subscriptions/2bd296ba-87e3-462d-8480-2d25f87fdc97/resourceGroups/katsujim_mediaservices/providers/Microsoft.Web/serverfarms/JapanEastPlan",
+        "storageAccounts_samplemediaservices_externalid": {
+            "defaultValue": "/subscriptions/2bd296ba-87e3-462d-8480-2d25f87fdc97/resourceGroups/sample_mediaservices/providers/microsoft.storage/storageAccounts/samplemediaservices",
             "type": "String"
         }
     },
     "variables": {},
     "resources": [
         {
+            "type": "Microsoft.Media/mediaservices",
+            "apiVersion": "2015-10-01",
+            "name": "[parameters('mediaservices_sample_name')]",
+            "location": "Japan East",
+            "properties": {
+                "storageAccounts": [
+                    {
+                        "id": "[parameters('storageAccounts_samplemediaservices_externalid')]",
+                        "isPrimary": true
+                    }
+                ]
+            }
+        },
+        {
             "type": "Microsoft.SignalRService/SignalR",
             "apiVersion": "2018-10-01",
-            "name": "[parameters('SignalR_katsujim_signalr_name')]",
+            "name": "[parameters('SignalR_sample_signalr_name')]",
             "location": "japaneast",
             "sku": {
                 "name": "Free_F1",
@@ -45,7 +59,7 @@
                 "capacity": 1
             },
             "properties": {
-                "hostNamePrefix": "[parameters('SignalR_katsujim_signalr_name')]",
+                "hostNamePrefix": "[parameters('SignalR_sample_signalr_name')]",
                 "features": [
                     {
                         "flag": "ServiceMode",
@@ -71,59 +85,77 @@
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "name": "[parameters('storageAccounts_katsujimmediaservices_name')]",
-            "location": "japaneast",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('serverfarms_ASP_sample_mediaservice_name')]",
+            "location": "Japan East",
             "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
+                "name": "B1",
+                "tier": "Basic",
+                "size": "B1",
+                "family": "B",
+                "capacity": 1
             },
-            "kind": "Storage",
+            "kind": "app",
             "properties": {
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
-                },
-                "supportsHttpsTrafficOnly": false,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        },
-                        "blob": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                }
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2018-02-01",
+            "name": "[parameters('serverfarms_JapanEastPlan_name')]",
+            "location": "Japan East",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "properties": {
+                "perSiteScaling": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0
             }
         },
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_katsujim_mediaservice_sample_name')]",
+            "name": "[parameters('sites_sample_mediaservice_sample_name')]",
             "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_sample_mediaservice_name'))]"
+            ],
             "kind": "app",
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[parameters('serverfarms_ASP_katsujim_mediaservice_externalid')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_sample_mediaservice_name'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -141,8 +173,11 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_katsujim_SignalR_functionApp_name')]",
+            "name": "[parameters('sites_sample_SignalR_functionApp_name')]",
             "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]"
+            ],
             "kind": "functionapp",
             "identity": {
                 "principalId": "bfeab482-9b65-46d9-8ee7-38d23fbadc70",
@@ -153,17 +188,17 @@
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "katsujim-signalr-functionapp.azurewebsites.net",
+                        "name": "sample-signalr-functionapp.azurewebsites.net",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "katsujim-signalr-functionapp.scm.azurewebsites.net",
+                        "name": "sample-signalr-functionapp.scm.azurewebsites.net",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[parameters('serverfarms_JapanEastPlan_externalid')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -179,66 +214,12 @@
             }
         },
         {
-            "type": "Microsoft.Media/mediaservices",
-            "apiVersion": "2015-10-01",
-            "name": "[parameters('mediaservices_katsujim_name')]",
-            "location": "Japan East",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "storageAccounts": [
-                    {
-                        "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]",
-                        "isPrimary": true
-                    }
-                ]
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                },
-                "deleteRetentionPolicy": {
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/web')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/web')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": 1,
@@ -259,7 +240,7 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$katsujim-mediaservice-sample",
+                "publishingUsername": "$sample-mediaservice-sample",
                 "scmType": "GitHub",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
@@ -306,10 +287,10 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/web')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/web')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": -1,
@@ -331,7 +312,7 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$katsujim-SignalR-functionApp",
+                "publishingUsername": "$sample-SignalR-functionApp",
                 "scmType": "VSTSRM",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
@@ -353,8 +334,8 @@
                     "allowedOrigins": [
                         "https://azure-samples.github.io",
                         "https://azure-samples.github.io",
-                        "https://katsujim-mediaservice-sample.azurewebsites.net",
-                        "https://test-katsujim-mediaservice-sample.azurewebsites.net"
+                        "https://sample-mediaservice-sample.azurewebsites.net",
+                        "https://test-sample-mediaservice-sample.azurewebsites.net"
                     ],
                     "supportCredentials": true
                 },
@@ -388,17 +369,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/015c1388bea84625892d1243915c7ed9')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/015c1388bea84625892d1243915c7ed9')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"9\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-9\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"9\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-9\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T01:42:22.542202Z",
                 "end_time": "2020-06-03T01:42:27.7332846Z",
                 "active": false
@@ -407,10 +388,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/059121bfa57102511f0f85ccce14b101ac72ee85')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/059121bfa57102511f0f85ccce14b101ac72ee85')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -426,10 +407,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/1178bd7ada2ee4cc10553a427a0fc10d584d7c92')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/1178bd7ada2ee4cc10553a427a0fc10d584d7c92')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -445,17 +426,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/2a379168d6134bac8ac0fbc0d21cafca')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/2a379168d6134bac8ac0fbc0d21cafca')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"9\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-9\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"9\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-9\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T01:58:51.0977058Z",
                 "end_time": "2020-06-03T01:58:57.7863808Z",
                 "active": false
@@ -464,17 +445,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/2e4899dac541442dbbc829b9b45c6bff')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/2e4899dac541442dbbc829b9b45c6bff')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"12\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-12\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"12\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-12\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-04T01:53:23.6130794Z",
                 "end_time": "2020-06-04T01:53:30.6430194Z",
                 "active": true
@@ -483,10 +464,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/36595dcf80f0e8b4fe23e29c4e5e6159dd6f79ee')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/36595dcf80f0e8b4fe23e29c4e5e6159dd6f79ee')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -502,17 +483,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/739b2725e37f444ba95a4d5f77e949c7')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/739b2725e37f444ba95a4d5f77e949c7')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"10\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-10\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"10\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-10\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T02:05:44.221622Z",
                 "end_time": "2020-06-03T02:05:49.3481583Z",
                 "active": false
@@ -521,17 +502,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/91e1102e472e401e9d1676bc0a438ab9')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/91e1102e472e401e9d1676bc0a438ab9')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"12\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-12\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"12\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-12\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-04T01:35:22.5247812Z",
                 "end_time": "2020-06-04T01:35:28.2701634Z",
                 "active": false
@@ -540,17 +521,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/9a52278ec3ed488ab26f3e60e32513c7')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/9a52278ec3ed488ab26f3e60e32513c7')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"11\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-11\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"11\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-11\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T15:05:03.1929132Z",
                 "end_time": "2020-06-03T15:05:08.6720803Z",
                 "active": false
@@ -559,10 +540,10 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/be44c849dfe74edc80b253912fa6353d488f5051')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/be44c849dfe74edc80b253912fa6353d488f5051')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
                 "status": 4,
@@ -578,17 +559,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/d85ec9c7f94d4a27bfc3fa12583fb00f')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/d85ec9c7f94d4a27bfc3fa12583fb00f')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"11\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-11\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"11\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-11\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T14:54:11.3298353Z",
                 "end_time": "2020-06-03T14:54:15.939342Z",
                 "active": false
@@ -597,17 +578,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/db4e653f2acc494f959d668aaa049be1')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/db4e653f2acc494f959d668aaa049be1')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"10\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-10\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"10\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-10\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-03T02:21:39.8021113Z",
                 "end_time": "2020-06-03T02:21:45.9272819Z",
                 "active": false
@@ -616,17 +597,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/dfa4077fe026417a8f805fa99296ce21')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/dfa4077fe026417a8f805fa99296ce21')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"8\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-8\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"8\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-8\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-02T14:56:03.5700349Z",
                 "end_time": "2020-06-02T14:56:09.5687209Z",
                 "active": false
@@ -635,17 +616,17 @@
         {
             "type": "Microsoft.Web/sites/deployments",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/e7a6329b0a984570849b13ea569f21a3')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/e7a6329b0a984570849b13ea569f21a3')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
                 "status": 4,
                 "author_email": "N/A",
                 "author": "N/A",
                 "deployer": "VSTS",
-                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"8\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-8\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/katsujim-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/katsujim-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
+                "message": "{\"type\":\"deployment\",\"commitId\":\"dda8bbdc14f779eaae094f342b6e961754d56d17\",\"buildId\":\"11\",\"releaseId\":\"8\",\"buildNumber\":\"20200602.1\",\"releaseName\":\"Release-8\",\"repoProvider\":\"GitHub\",\"repoName\":\"tenjoufire/SignalR-FunctionApp-Sample\",\"collectionUrl\":\"https://dev.azure.com/sample-dev/\",\"teamProject\":\"69553f66-bebd-4330-b9d8-2d33e51532e0\",\"buildProjectUrl\":\"https://dev.azure.com/sample-dev/69553f66-bebd-4330-b9d8-2d33e51532e0\",\"repositoryUrl\":\"\",\"branch\":\"master\",\"teamProjectName\":\"SignalR-FunctionApp-Sample\",\"slotName\":\"production\"}",
                 "start_time": "2020-06-02T15:11:59.2056175Z",
                 "end_time": "2020-06-02T15:12:04.9903919Z",
                 "active": false
@@ -654,203 +635,59 @@
         {
             "type": "Microsoft.Web/sites/functions",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/messages')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/messages')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
-                "script_root_path_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/messages/",
-                "script_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/bin/katsujim-SignalR-functionApp.dll",
-                "config_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/messages/function.json",
-                "href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/functions/messages",
+                "script_root_path_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/messages/",
+                "script_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/bin/sample-SignalR-functionApp.dll",
+                "config_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/messages/function.json",
+                "href": "https://sample-signalr-functionapp.azurewebsites.net/admin/functions/messages",
                 "config": {}
             }
         },
         {
             "type": "Microsoft.Web/sites/functions",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/negotiate')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/negotiate')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
-                "script_root_path_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/negotiate/",
-                "script_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/bin/katsujim-SignalR-functionApp.dll",
-                "config_href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/negotiate/function.json",
-                "href": "https://katsujim-signalr-functionapp.azurewebsites.net/admin/functions/negotiate",
+                "script_root_path_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/negotiate/",
+                "script_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/bin/sample-SignalR-functionApp.dll",
+                "config_href": "https://sample-signalr-functionapp.azurewebsites.net/admin/vfs/site/wwwroot/negotiate/function.json",
+                "href": "https://sample-signalr-functionapp.azurewebsites.net/admin/functions/negotiate",
                 "config": {}
             }
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_mediaservice_sample_name'), '/', parameters('sites_katsujim_mediaservice_sample_name'), '.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/', parameters('sites_sample_mediaservice_sample_name'), '.azurewebsites.net')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
             ],
             "properties": {
-                "siteName": "katsujim-mediaservice-sample",
+                "siteName": "sample-mediaservice-sample",
                 "hostNameType": "Verified"
             }
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_katsujim_SignalR_functionApp_name'), '/', parameters('sites_katsujim_SignalR_functionApp_name'), '.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/', parameters('sites_sample_SignalR_functionApp_name'), '.azurewebsites.net')]",
             "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujim_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
             ],
             "properties": {
-                "siteName": "katsujim-SignalR-functionApp",
+                "siteName": "sample-SignalR-functionApp",
                 "hostNameType": "Verified"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-21d0fe7d-d113-4afb-943d-4179e8b0b462')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-4adc1056-51e9-4cc3-9ff3-ff7d92325c2b')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-639356cf-8c58-4d20-aab2-a39ebd6c423e')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-64e1749a-2bef-4758-a594-a8964bc29b91')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-8560e85e-1d3e-42f1-8588-d906d646ad39')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-88b84e65-88aa-40e6-9910-5812c038f84d')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-a155da3f-126b-4df9-b4c5-75950a404a89')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-a8c5289f-00ec-44db-8c84-a894290be652')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-e6dd4d69-f45d-459e-b363-44049b4f2a27')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-ebf773ef-29f7-4abb-ad77-2f87180f993a')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/asset-fa0b3ae6-70ab-46ba-9aa6-8001a80fb3b7')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_katsujimmediaservices_name'), '/default/media')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_katsujimmediaservices_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_katsujimmediaservices_name'))]"
-            ],
-            "properties": {
-                "publicAccess": "Blob"
             }
         }
     ]
