@@ -221,14 +221,6 @@
                         "value": "dotnet"
                     },
                     {
-                        "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-                        "value": "[reference('microsoft.insights/components/mediademosample', '2015-05-01').InstrumentationKey]"
-                    },
-                    {
-                        "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                        "value": "[reference('microsoft.insights/components/mediademosample', '2015-05-01').ConnectionString]"
-                    },
-                    {
                         "name": "AzureWebJobsStorage",
                         "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccounts_storageaccountmedia81a3_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
                     },
