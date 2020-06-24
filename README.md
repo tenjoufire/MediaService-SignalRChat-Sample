@@ -24,7 +24,7 @@ Azure Media Services に SignalR ベースのチャットシステムを載せ�
 
 ## Webアプリのデプロイ
 
-フロントのWebアプリは[こちら](https://github.com/tenjoufire/MediaService-SignalRChat-Sample/tree/master/front)にあるindex.htmlファイルが実体です。実際にAzure上のWebアプリにデプロイする方法は複数用意されており、例えば、[FTPを使ったデプロイ](https://docs.microsoft.com/ja-jp/azure/app-service/deploy-ftp)や[継続的デプロイ](https://docs.microsoft.com/ja-jp/azure/app-service/deploy-continuous-deployment)がご利用いただけます。チャットのログを残す際は、index.html ファイルの中にある {YOUR_APPLICATION_INSIGHTS_INSTRUMENTATIONKEY} を、デプロイ先のWebアプリに紐づいた Application Insights のキーを入れてください。
+フロントの Web アプリは[こちら](https://github.com/tenjoufire/MediaService-SignalRChat-Sample/tree/master/front)にある index.html ファイルが実体です。実際に Azure 上の Web アプリにデプロイする方法は複数用意されており、例えば、[FTP を使ったデプロイ](https://docs.microsoft.com/ja-jp/azure/app-service/deploy-ftp)や[継続的デプロイ](https://docs.microsoft.com/ja-jp/azure/app-service/deploy-continuous-deployment)がご利用いただけます。チャットのログを残す際は、index.html ファイルの中にある {YOUR_APPLICATION_INSIGHTS_INSTRUMENTATIONKEY} を、デプロイ先の Web アプリに紐づいた Application Insights のキーを入れてください。
 
 ## Functions のデプロイ
 
@@ -34,3 +34,15 @@ GitHubからソースコードをダウンロードした後に Visual Studio �
 
 ## 各種アプリ構成の設定
 
+### Functions の構成設定
+
+はじめに、 SignalR サービス -> Keys -> Primary CONNECTION STRING から SignalR の接続文字列をコピーしてください。次に Functions App の左のメニューから「構成」をクリックし、アプリケーション設定の画面へアクセスしてください。ここで、新しいアプリケーション設定を選択し、
+
+- 名前： AzureSignalRConnectionString
+- 値： SignalR サービスでコピーした接続文字列を貼り付け
+
+を入力し、「OK」を押してください。
+
+### CORS の設定
+
+Functions App の左のメニューから「CORS」をクリックし、デフォルトで入力されている値をすべて削除してください。その後、Web アプリのURLを許可される元のドメインに追加し、資格情報の要求にある「Access-Control-Allow-Credentials を有効にする」にチェックをつけて、保存してください。
