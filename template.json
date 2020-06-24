@@ -2,32 +2,28 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "mediaservices_sample_name": {
-            "defaultValue": "sample",
+        "sites_katsujimsample_name": {
+            "defaultValue": "katsujimsample",
             "type": "String"
         },
-        "serverfarms_JapanEastPlan_name": {
-            "defaultValue": "JapanEastPlan",
+        "sites_function_katsujimdemo_name": {
+            "defaultValue": "function-katsujimdemo",
             "type": "String"
         },
-        "sites_sample_mediaservice_sample_name": {
-            "defaultValue": "sample-mediaservice-sample",
+        "serverfarms_asp_katsujimdemo_name": {
+            "defaultValue": "asp-katsujimdemo",
             "type": "String"
         },
-        "sites_sample_SignalR_functionApp_name": {
-            "defaultValue": "sample-SignalR-functionApp",
+        "serverfarms_ASP_mediademo_a76c_name": {
+            "defaultValue": "ASP-mediademo-a76c",
             "type": "String"
         },
-        "SignalR_sample_signalr_name": {
-            "defaultValue": "sample-signalr",
+        "SignalR_katsujimdemo_name": {
+            "defaultValue": "katsujimdemo",
             "type": "String"
         },
-        "serverfarms_ASP_sample_mediaservice_name": {
-            "defaultValue": "ASP-sample-mediaservice",
-            "type": "String"
-        },
-        "storageAccounts_samplemediaservices_name": {
-            "defaultValue": "samplemediaservices",
+        "storageAccounts_storageaccountmedia81a3_name": {
+            "defaultValue": "storageaccountmedia81a3",
             "type": "String"
         }
     },
@@ -36,7 +32,7 @@
         {
             "type": "Microsoft.SignalRService/SignalR",
             "apiVersion": "2018-10-01",
-            "name": "[parameters('SignalR_sample_signalr_name')]",
+            "name": "[parameters('SignalR_katsujimdemo_name')]",
             "location": "japaneast",
             "sku": {
                 "name": "Free_F1",
@@ -45,7 +41,7 @@
                 "capacity": 1
             },
             "properties": {
-                "hostNamePrefix": "[parameters('SignalR_sample_signalr_name')]",
+                "hostNamePrefix": "[parameters('SignalR_katsujimdemo_name')]",
                 "features": [
                     {
                         "flag": "ServiceMode",
@@ -73,7 +69,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[parameters('storageAccounts_samplemediaservices_name')]",
+            "name": "[parameters('storageAccounts_storageaccountmedia81a3_name')]",
             "location": "japaneast",
             "sku": {
                 "name": "Standard_LRS",
@@ -87,7 +83,7 @@
                     "ipRules": [],
                     "defaultAction": "Allow"
                 },
-                "supportsHttpsTrafficOnly": false,
+                "supportsHttpsTrafficOnly": true,
                 "encryption": {
                     "services": {
                         "file": {
@@ -106,8 +102,8 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
-            "name": "[parameters('serverfarms_ASP_sample_mediaservice_name')]",
-            "location": "[resourceGroup().location]",
+            "name": "[parameters('serverfarms_asp_katsujimdemo_name')]",
+            "location": "Japan East",
             "sku": {
                 "name": "B1",
                 "tier": "Basic",
@@ -130,8 +126,8 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
-            "name": "[parameters('serverfarms_JapanEastPlan_name')]",
-            "location": "[resourceGroup().location]",
+            "name": "[parameters('serverfarms_ASP_mediademo_a76c_name')]",
+            "location": "Japan East",
             "sku": {
                 "name": "Y1",
                 "tier": "Dynamic",
@@ -152,28 +148,11 @@
             }
         },
         {
-            "type": "Microsoft.Media/mediaservices",
-            "apiVersion": "2015-10-01",
-            "name": "[parameters('mediaservices_sample_name')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_samplemediaservices_name'))]"
-            ],
-            "properties": {
-                "storageAccounts": [
-                    {
-                        "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_samplemediaservices_name'))]",
-                        "isPrimary": true
-                    }
-                ]
-            }
-        },
-        {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_samplemediaservices_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_storageaccountmedia81a3_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_samplemediaservices_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -191,9 +170,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_samplemediaservices_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_storageaccountmedia81a3_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_samplemediaservices_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -208,27 +187,65 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_sample_mediaservice_sample_name')]",
-            "location": "[resourceGroup().location]",
+            "name": "[parameters('sites_function_katsujimdemo_name')]",
+            "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_sample_mediaservice_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_mediademo_a76c_name'))]"
+            ],
+            "kind": "functionapp",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_function_katsujimdemo_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_function_katsujimdemo_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_mediademo_a76c_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "siteConfig": {},
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "hostNamesDisabled": false,
+                "containerSize": 1536,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": false,
+                "redundancyMode": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2018-11-01",
+            "name": "[parameters('sites_katsujimsample_name')]",
+            "location": "Japan East",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_asp_katsujimdemo_name'))]"
             ],
             "kind": "app",
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_katsujimsample_name'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_katsujimsample_name'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_sample_mediaservice_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_asp_katsujimdemo_name'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -244,74 +261,91 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites",
+            "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_sample_SignalR_functionApp_name')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat(parameters('sites_function_katsujimdemo_name'), '/web')]",
+            "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_function_katsujimdemo_name'))]"
             ],
-            "kind": "functionapp",
-            "identity": {
-                "principalId": "",
-                "tenantId": "",
-                "type": "SystemAssigned"
-            },
             "properties": {
-                "enabled": true,
-                "hostNameSslStates": [
+                "numberOfWorkers": -1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "httpLoggingEnabled": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$function-katsujimdemo",
+                "scmType": "None",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
                     {
-                        "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '.azurewebsites.net')]",
-                        "sslState": "Disabled",
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '.scm.azurewebsites.net')]",
-                        "sslState": "Disabled",
-                        "hostType": "Repository"
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_JapanEastPlan_name'))]",
-                "reserved": false,
-                "isXenon": false,
-                "hyperV": false,
-                "siteConfig": {
-                    "appSettings": [
-                        {
-                            "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(variables('functionAppName'))]"
-                        },
-                        {
-                            "name": "FUNCTIONS_WORKER_RUNTIME",
-                            "value": "dotnet"
-                        },
-                        {
-                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "10.14.1"
-                        },
-                        {
-                            "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~2"
-                        }
-                    ]
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
                 },
-                "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": false,
-                "clientCertEnabled": false,
-                "hostNamesDisabled": false,
-                "containerSize": 1536,
-                "dailyMemoryTimeQuota": 0,
-                "httpsOnly": true,
-                "redundancyMode": "None"
+                "autoHealEnabled": false,
+                "cors": {
+                    "allowedOrigins": [
+                        "https://functions.azure.com",
+                        "https://functions-staging.azure.com",
+                        "https://functions-next.azure.com"
+                    ],
+                    "supportCredentials": false
+                },
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 1,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "reservedInstanceCount": 0
             }
         },
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/web')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat(parameters('sites_katsujimsample_name'), '/web')]",
+            "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujimsample_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": 1,
@@ -332,8 +366,8 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$sample-mediaservice-sample",
-                "scmType": "GitHub",
+                "publishingUsername": "$katsujimsample",
+                "scmType": "None",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
                 "alwaysOn": false,
@@ -377,108 +411,53 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/web')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
-            ],
-            "properties": {
-                "numberOfWorkers": -1,
-                "defaultDocuments": [
-                    "Default.htm",
-                    "Default.html",
-                    "Default.asp",
-                    "index.htm",
-                    "index.html",
-                    "iisstart.htm",
-                    "default.aspx",
-                    "index.php"
-                ],
-                "netFrameworkVersion": "v4.0",
-                "phpVersion": "5.6",
-                "requestTracingEnabled": false,
-                "remoteDebuggingEnabled": false,
-                "remoteDebuggingVersion": "VS2019",
-                "httpLoggingEnabled": false,
-                "logsDirectorySizeLimit": 35,
-                "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$sample-SignalR-functionApp",
-                "scmType": "VSTSRM",
-                "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
-                "alwaysOn": false,
-                "managedPipelineMode": "Integrated",
-                "virtualApplications": [
-                    {
-                        "virtualPath": "/",
-                        "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": false
-                    }
-                ],
-                "loadBalancing": "LeastRequests",
-                "experiments": {
-                    "rampUpRules": []
-                },
-                "autoHealEnabled": false,
-                "cors": {
-                    "allowedOrigins": [
-                        "https://azure-samples.github.io"
-                    ],
-                    "supportCredentials": true
-                },
-                "localMySqlEnabled": false,
-                "managedServiceIdentityId": 8072,
-                "ipSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictionsUseMain": false,
-                "http20Enabled": false,
-                "minTlsVersion": "1.2",
-                "ftpsState": "AllAllowed",
-                "reservedInstanceCount": 0
-            }
-        },
-        {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_sample_mediaservice_sample_name'), '/', parameters('sites_sample_mediaservice_sample_name'), '.azurewebsites.net')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat(parameters('sites_function_katsujimdemo_name'), '/', parameters('sites_function_katsujimdemo_name'), '.azurewebsites.net')]",
+            "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_mediaservice_sample_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_function_katsujimdemo_name'))]"
             ],
             "properties": {
-                "siteName": "sample-mediaservice-sample",
+                "siteName": "parameters('sites_function_katsujimdemo_name')",
                 "hostNameType": "Verified"
             }
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_sample_SignalR_functionApp_name'), '/', parameters('sites_sample_SignalR_functionApp_name'), '.azurewebsites.net')]",
-            "location": "[resourceGroup().location]",
+            "name": "[concat(parameters('sites_katsujimsample_name'), '/', parameters('sites_katsujimsample_name'), '.azurewebsites.net')]",
+            "location": "Japan East",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_sample_SignalR_functionApp_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_katsujimsample_name'))]"
             ],
             "properties": {
-                "siteName": "sample-SignalR-functionApp",
+                "siteName": "parameters('sites_katsujimsample_name')",
                 "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_storageaccountmedia81a3_name'), '/default/azure-webjobs-secrets')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_storageaccountmedia81a3_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name'))]"
+            ],
+            "properties": {
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2019-06-01",
+            "name": "[concat(parameters('storageAccounts_storageaccountmedia81a3_name'), '/default/function-katsujimdemoa122')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_storageaccountmedia81a3_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name'))]"
+            ],
+            "properties": {
+                "shareQuota": 5120
             }
         }
     ]

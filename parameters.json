@@ -2,25 +2,37 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "mediaservices_katsujim_name": {
+        "sites_katsujimsample_name": {
             "value": null
         },
-        "sites_katsujim_mediaservice_sample_name": {
+        "sites_function_katsujimdemo_name": {
             "value": null
         },
-        "sites_katsujim_SignalR_functionApp_name": {
+        "serverfarms_asp_katsujimdemo_name": {
             "value": null
         },
-        "SignalR_katsujim_signalr_name": {
+        "serverfarms_ASP_mediademo_a76c_name": {
             "value": null
         },
-        "storageAccounts_katsujimmediaservices_name": {
+        "SignalR_katsujimdemo_name": {
             "value": null
         },
-        "serverfarms_ASP_katsujim_mediaservice_externalid": {
+        "storageAccounts_storageaccountmedia81a3_name": {
             "value": null
         },
-        "serverfarms_JapanEastPlan_externalid": {
+        "smartdetectoralertrules_failure_anomalies___katsujimsample_name": {
+            "value": null
+        },
+        "smartdetectoralertrules_failure_anomalies___function_katsujimdemo_name": {
+            "value": null
+        },
+        "components_function_katsujimdemo_externalid": {
+            "value": null
+        },
+        "actiongroups_application_insights_smart_detection_externalid": {
+            "value": null
+        },
+        "components_katsujimsample_externalid": {
             "value": null
         }
     }
