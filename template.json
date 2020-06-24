@@ -3,27 +3,27 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "sites_katsujimsample_name": {
-            "defaultValue": "katsujimsample",
+            "defaultValue": "webapp-sample",
             "type": "String"
         },
         "sites_function_katsujimdemo_name": {
-            "defaultValue": "function-katsujimdemo",
+            "defaultValue": "function-sample",
             "type": "String"
         },
         "serverfarms_asp_katsujimdemo_name": {
-            "defaultValue": "asp-katsujimdemo",
+            "defaultValue": "asp-sample",
             "type": "String"
         },
         "serverfarms_ASP_mediademo_a76c_name": {
-            "defaultValue": "ASP-mediademo-a76c",
+            "defaultValue": "ASP-sample-a76c",
             "type": "String"
         },
         "SignalR_katsujimdemo_name": {
-            "defaultValue": "katsujimdemo",
+            "defaultValue": "signalr-sample",
             "type": "String"
         },
         "storageAccounts_storageaccountmedia81a3_name": {
-            "defaultValue": "storageaccountmedia81a3",
+            "defaultValue": "storageaccountsample",
             "type": "String"
         }
     },
