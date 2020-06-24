@@ -103,7 +103,7 @@
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[parameters('serverfarms_asp_katsujimdemo_name')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "sku": {
                 "name": "B1",
                 "tier": "Basic",
@@ -127,7 +127,7 @@
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
             "name": "[parameters('serverfarms_ASP_mediademo_a76c_name')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Y1",
                 "tier": "Dynamic",
@@ -188,7 +188,7 @@
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
             "name": "[parameters('sites_function_katsujimdemo_name')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_mediademo_a76c_name'))]"
             ],
@@ -211,7 +211,36 @@
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
-                "siteConfig": {},
+                "siteConfig": {"appSettings": [
+                    {
+                        "name": "FUNCTIONS_EXTENSION_VERSION",
+                        "value": "~3"
+                    },
+                    {
+                        "name": "FUNCTIONS_WORKER_RUNTIME",
+                        "value": "dotnet"
+                    },
+                    {
+                        "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                        "value": "[reference('microsoft.insights/components/mediademosample', '2015-05-01').InstrumentationKey]"
+                    },
+                    {
+                        "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                        "value": "[reference('microsoft.insights/components/mediademosample', '2015-05-01').ConnectionString]"
+                    },
+                    {
+                        "name": "AzureWebJobsStorage",
+                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccounts_storageaccountmedia81a3_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                    },
+                    {
+                        "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storageAccounts_storageaccountmedia81a3_name'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmedia81a3_name')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                    },
+                    {
+                        "name": "WEBSITE_CONTENTSHARE",
+                        "value": "[concat(toLower(parameters('name')), 'abf9')]"
+                    }
+                ]},
                 "scmSiteAlsoStopped": false,
                 "clientAffinityEnabled": true,
                 "clientCertEnabled": false,
@@ -226,7 +255,7 @@
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
             "name": "[parameters('sites_katsujimsample_name')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_asp_katsujimdemo_name'))]"
             ],
@@ -264,7 +293,7 @@
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('sites_function_katsujimdemo_name'), '/web')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('sites_function_katsujimdemo_name'))]"
             ],
@@ -343,7 +372,7 @@
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('sites_katsujimsample_name'), '/web')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('sites_katsujimsample_name'))]"
             ],
@@ -414,7 +443,7 @@
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('sites_function_katsujimdemo_name'), '/', parameters('sites_function_katsujimdemo_name'), '.azurewebsites.net')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('sites_function_katsujimdemo_name'))]"
             ],
@@ -427,7 +456,7 @@
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
             "name": "[concat(parameters('sites_katsujimsample_name'), '/', parameters('sites_katsujimsample_name'), '.azurewebsites.net')]",
-            "location": "Japan East",
+            "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites', parameters('sites_katsujimsample_name'))]"
             ],
