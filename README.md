@@ -13,12 +13,12 @@ Azure Media Services に SignalR ベースのチャットシステムを載せ�
 はじめに、Azure サブスクリプション（初めての方は[無料仕様版](https://azure.microsoft.com/ja-jp/free/)もご利用いただけます。）をご用意ください。
 次に、[Azure ポータル](https://portal.azure.com)へアクセスし、以下に示すサービスを作成してください。
 
-- Media Services
 - App Services
 - Functions（日本語では関数アプリと表記）
 - SignalR Services
+- Media Services (必須ではありません、ご自身でご用意された動画を利用する場合は作成してください。)
 
-また、下記ボタンを利用いただきますと、上記リソースが自動的に作成されます。サブスクリプションやリソースグループ・各種リソースの名前を入力すると自動的にリソースがデプロイされます。
+また、下記ボタンを利用いただきますと、上記リソース（Media Services を除く）が自動的に作成されます。サブスクリプションやリソースグループ・各種リソースの名前を入力すると自動的にリソースがデプロイされます。
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftenjoufire%2FMediaService-SignalRChat-Sample%2Fmaster%2Ftemplate.json)
 
