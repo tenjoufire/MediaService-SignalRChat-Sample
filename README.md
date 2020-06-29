@@ -10,7 +10,7 @@ Azure Media Services に SignalR ベースのチャットシステムを載せ�
 
 ## 事前に準備するリソース
 
-はじめに、Azure サブスクリプション（初めての方は[無料仕様版](https://azure.microsoft.com/ja-jp/free/)もご利用いただけます。）をご用意ください。
+はじめに、Azure サブスクリプション（初めての方は[無料試用版](https://azure.microsoft.com/ja-jp/free/)もご利用いただけます。）をご用意ください。
 次に、[Azure ポータル](https://portal.azure.com)へアクセスし、以下に示すサービスを作成してください。
 
 - App Services
