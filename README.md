@@ -36,13 +36,21 @@ GitHubからソースコードをダウンロードした後に Visual Studio �
 
 ### Functions の構成設定
 
-はじめに、 SignalR サービス -> Keys -> Primary CONNECTION STRING から SignalR の接続文字列をコピーしてください。次に Functions App の左のメニューから「構成」をクリックし、アプリケーション設定の画面へアクセスしてください。ここで、新しいアプリケーション設定を選択し、
+はじめに、 SignalR サービス -> Keys -> Primary CONNECTION STRING から SignalR の接続文字列をコピーしてください。
+
+![SignalR](./pics/pic3.png)
+
+次に Functions App の左のメニューから「構成」をクリックし、アプリケーション設定の画面へアクセスしてください。ここで、新しいアプリケーション設定を選択し、
 
 - 名前： AzureSignalRConnectionString
 - 値： SignalR サービスでコピーした接続文字列を貼り付け
 
 を入力し、「OK」を押してください。
 
+![Functions](./pics/pic1.png)
+
 ### CORS の設定
 
 Functions App の左のメニューから「CORS」をクリックし、デフォルトで入力されている値をすべて削除してください。その後、Web アプリのURLを許可される元のドメインに追加し、資格情報の要求にある「Access-Control-Allow-Credentials を有効にする」にチェックをつけて、保存してください。
+
+![CORS](./pics/pic2.png)
